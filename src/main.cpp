@@ -1,21 +1,52 @@
 #include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/highgui.hpp>
 
+#include <string>
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
-    std::cout << "OpenCV " << CV_VERSION << '\n';
+    if (argc < 2)
+    {
+        std::cerr << "Usage: lane_detection <video_path>\n";
+        return 1;
+    }
 
-    // Image de 240 x 320 pixels, 3 canaux de 8 bits (couleur), fond gris foncé
-    cv::Mat image(240, 320, CV_8UC3, cv::Scalar(40, 40, 40));
+    const std::string videoPath { argv[1] };
 
-    // Disque orange au centre (OpenCV range les couleurs en Bleu, Vert, Rouge)
-    cv::circle(image, cv::Point(160, 120), 60, cv::Scalar(0, 160, 255), cv::FILLED);
+    cv::VideoCapture cap(videoPath);
 
-    cv::imwrite("output/test.png", image);
-    std::cout << "Image ecrite dans output/test.png\n";
+    // Check if the video was opened successfully
+    if (!cap.isOpened()) 
+    {
+        std::cerr << "Error: Could not open video file." << "\n";
+        return 1;
+    } 
+
+    double duration {cap.get(cv::CAP_PROP_FRAME_COUNT)/cap.get(cv::CAP_PROP_FPS)};
+    std::cout << "Video file opened successfully! Video specifications:" <<"\n" ;
+    std::cout << "Duration: " << duration << "\n";
+    std::cout << "FPS: " << cap.get(cv::CAP_PROP_FPS)  << "\n";
+    std::cout << "Height: " << cap.get(cv::CAP_PROP_FRAME_HEIGHT) << ", Width: "<< cap.get(cv::CAP_PROP_FRAME_WIDTH) << "\n";
+
+
+    cv::Mat frame {};
+    int frameCount { 0 };
+
+    while (cap.read(frame))   // lit l'image suivante ; false à la fin de la vidéo
+    {
+        ++frameCount;
+        cv::imshow("Lane detection", frame);
+
+        const int key { cv::waitKey(1) };   // laisse la fenêtre s'afficher, attend 1 ms
+        if (key == 27 || key == 'q')        // 27 = touche Échap
+        {
+            break;
+        }
+    }
+
+    std::cout << frameCount << " frames processed\n";
 
     return 0;
 }
