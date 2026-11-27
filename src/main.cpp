@@ -2,6 +2,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <filesystem>
+#include <chrono>
 #include <string>
 #include <iostream>
 
@@ -51,6 +52,8 @@ int main(int argc, char* argv[])
         return 1;
     } 
 
+    const auto start {std::chrono::steady_clock::now()};
+
     while (cap.read(frame))   // lit l'image suivante ; false à la fin de la vidéo
     {
         ++frameCount;
@@ -63,8 +66,13 @@ int main(int argc, char* argv[])
             break;
         }
     }
+    const std::chrono::duration<double> elapsed { std::chrono::steady_clock::now() - start };
+    const double seconds { elapsed.count() };
+    const double processingSpeed {static_cast<double>(frameCount) / seconds};
 
-    std::cout << frameCount << " frames processed\n";
+
+    std::cout << frameCount << " frames processed in " << seconds << " s (" << processingSpeed << " frames/s)" << "\n";
+
 
     return 0;
 }
