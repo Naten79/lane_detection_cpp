@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.20)
 # Nom du projet
 project(lane_detection LANGUAGES CXX)
 
+# Génère build/compile_commands.json, utilisé par l'éditeur pour comprendre le projet
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
