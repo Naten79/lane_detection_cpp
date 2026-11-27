@@ -1,7 +1,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
-
+#include <filesystem>
 #include <string>
 #include <iostream>
 
@@ -23,20 +23,38 @@ int main(int argc, char* argv[])
         std::cerr << "Error: Could not open video file." << "\n";
         return 1;
     } 
+ 
+    const int totalFrames { static_cast<int>(cap.get(cv::CAP_PROP_FRAME_COUNT)) };
+    const double fps { cap.get(cv::CAP_PROP_FPS) };
+    const int width { static_cast<int>(cap.get(cv::CAP_PROP_FRAME_WIDTH)) };
+    const int height { static_cast<int>(cap.get(cv::CAP_PROP_FRAME_HEIGHT)) };
+    const double duration { totalFrames / fps };
 
-    double duration {cap.get(cv::CAP_PROP_FRAME_COUNT)/cap.get(cv::CAP_PROP_FPS)};
     std::cout << "Video file opened successfully! Video specifications:" <<"\n" ;
     std::cout << "Duration: " << duration << "\n";
-    std::cout << "FPS: " << cap.get(cv::CAP_PROP_FPS)  << "\n";
-    std::cout << "Height: " << cap.get(cv::CAP_PROP_FRAME_HEIGHT) << ", Width: "<< cap.get(cv::CAP_PROP_FRAME_WIDTH) << "\n";
+    std::cout << "FPS: " << fps  << "\n";
+    std::cout << "Height: " << height << ", Width: "<< width << "\n";
 
 
     cv::Mat frame {};
     int frameCount { 0 };
 
+    std::filesystem::create_directories("output");
+    cv::VideoWriter writer("output/result.mp4",
+                       cv::VideoWriter::fourcc('m', 'p', '4', 'v'),
+                       fps,
+                       cv::Size(width, height));
+
+    if (!writer.isOpened())
+    {
+        std::cerr << "Error: Could not open video writer." << "\n";
+        return 1;
+    } 
+
     while (cap.read(frame))   // lit l'image suivante ; false à la fin de la vidéo
     {
         ++frameCount;
+        writer.write(frame);
         cv::imshow("Lane detection", frame);
 
         const int key { cv::waitKey(1) };   // laisse la fenêtre s'afficher, attend 1 ms
