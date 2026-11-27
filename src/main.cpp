@@ -1,10 +1,12 @@
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <filesystem>
 #include <chrono>
 #include <string>
 #include <iostream>
+#include "lane_detection/preprocessing.h"
 
 int main(int argc, char* argv[])
 {
@@ -57,8 +59,15 @@ int main(int argc, char* argv[])
     while (cap.read(frame))   // lit l'image suivante ; false à la fin de la vidéo
     {
         ++frameCount;
-        writer.write(frame);
+        const cv::Mat mask = lane_detection::preprocess(frame);
+
+        cv::Mat maskBgr {};
+        cv::cvtColor(mask, maskBgr, cv::COLOR_GRAY2BGR);
+        writer.write(maskBgr);
+
         cv::imshow("Lane detection", frame);
+        cv::imshow("Mask", mask);
+        cv::imshow("Lane detection", lane_detection::preprocess(frame));
 
         const int key { cv::waitKey(1) };   // laisse la fenêtre s'afficher, attend 1 ms
         if (key == 27 || key == 'q')        // 27 = touche Échap
@@ -66,6 +75,7 @@ int main(int argc, char* argv[])
             break;
         }
     }
+
     const std::chrono::duration<double> elapsed { std::chrono::steady_clock::now() - start };
     const double seconds { elapsed.count() };
     const double processingSpeed {static_cast<double>(frameCount) / seconds};
