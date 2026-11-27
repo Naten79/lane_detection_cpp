@@ -5,6 +5,7 @@
 #include <chrono>
 #include <string>
 #include <iostream>
+#include "lane_detection/preprocessing.h"
 
 int main(int argc, char* argv[])
 {
@@ -58,7 +59,7 @@ int main(int argc, char* argv[])
     {
         ++frameCount;
         writer.write(frame);
-        cv::imshow("Lane detection", frame);
+        cv::imshow("Lane detection", lane_detection::toGray(frame));
 
         const int key { cv::waitKey(1) };   // laisse la fenêtre s'afficher, attend 1 ms
         if (key == 27 || key == 'q')        // 27 = touche Échap
@@ -66,6 +67,7 @@ int main(int argc, char* argv[])
             break;
         }
     }
+
     const std::chrono::duration<double> elapsed { std::chrono::steady_clock::now() - start };
     const double seconds { elapsed.count() };
     const double processingSpeed {static_cast<double>(frameCount) / seconds};

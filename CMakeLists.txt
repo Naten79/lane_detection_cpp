@@ -12,7 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(OpenCV REQUIRED)
 
-add_executable(lane_detection src/main.cpp)
+add_executable(lane_detection src/main.cpp src/preprocessing.cpp)
 
 target_include_directories(lane_detection PRIVATE include)
 
